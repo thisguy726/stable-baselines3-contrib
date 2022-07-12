@@ -104,10 +104,8 @@ def test_feature_extractor_target_net(model_class, share_features_extractor):
     if share_features_extractor:
         # Check that the objects are the same and not just copied
         assert id(model.policy.actor.features_extractor) == id(model.policy.critic.features_extractor)
-    else:
-        # Check that the objects differ
-        if model_class != QRDQN:
-            assert id(model.policy.actor.features_extractor) != id(model.policy.critic.features_extractor)
+    elif model_class != QRDQN:
+        assert id(model.policy.actor.features_extractor) != id(model.policy.critic.features_extractor)
 
     # Critic and target should be equal at the begginning of training
     params_should_match(model.critic.parameters(), model.critic_target.parameters())
