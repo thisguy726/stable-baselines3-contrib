@@ -25,13 +25,17 @@ def test_deterministic_training_common(algo):
         ars_multi = False
 
     if algo in [TQC]:
-        kwargs.update({"action_noise": NormalActionNoise(0.0, 0.1), "learning_starts": 100, "train_freq": 4})
-    else:
-        if algo == QRDQN:
-            env_id = "CartPole-v1"
-            kwargs.update({"learning_starts": 100, "target_update_interval": 100})
-        elif algo == ARS:
-            kwargs.update({"n_delta": 2})
+        kwargs |= {
+            "action_noise": NormalActionNoise(0.0, 0.1),
+            "learning_starts": 100,
+            "train_freq": 4,
+        }
+
+    elif algo == QRDQN:
+        env_id = "CartPole-v1"
+        kwargs |= {"learning_starts": 100, "target_update_interval": 100}
+    elif algo == ARS:
+        kwargs["n_delta"] = 2
 
     for i in range(2):
         model = algo("MlpPolicy", env_id, seed=SEED, **kwargs)

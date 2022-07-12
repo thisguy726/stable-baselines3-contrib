@@ -277,7 +277,7 @@ class TQC(OffPolicyAlgorithm):
         self.logger.record("train/ent_coef", np.mean(ent_coefs))
         self.logger.record("train/actor_loss", np.mean(actor_losses))
         self.logger.record("train/critic_loss", np.mean(critic_losses))
-        if len(ent_coef_losses) > 0:
+        if ent_coef_losses:
             self.logger.record("train/ent_coef_loss", np.mean(ent_coef_losses))
 
     def learn(

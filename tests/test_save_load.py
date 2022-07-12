@@ -21,10 +21,7 @@ def select_env(model_class: BaseAlgorithm) -> gym.Env:
     """
     Selects an environment with the correct action space as QRDQN only supports discrete action space
     """
-    if model_class == QRDQN:
-        return IdentityEnv(10)
-    else:
-        return IdentityEnvBox(10)
+    return IdentityEnv(10) if model_class == QRDQN else IdentityEnvBox(10)
 
 
 @pytest.mark.parametrize("model_class", MODEL_LIST)
@@ -43,7 +40,7 @@ def test_save_load(tmp_path, model_class):
     policy_kwargs = dict(net_arch=[16])
 
     if model_class in {QRDQN, TQC}:
-        policy_kwargs.update(dict(n_quantiles=20))
+        policy_kwargs |= dict(n_quantiles=20)
 
     # create model
     model = model_class("MlpPolicy", env, verbose=1, policy_kwargs=policy_kwargs)
@@ -66,7 +63,7 @@ def test_save_load(tmp_path, model_class):
         model.set_parameters(invalid_object_params, exact_match=False)
 
     # Test that exact_match catches when something was missed.
-    missing_object_params = {k: v for k, v in list(original_params.items())[:-1]}
+    missing_object_params = dict(list(original_params.items())[:-1])
     with pytest.raises(ValueError):
         model.set_parameters(missing_object_params, exact_match=True)
 
@@ -178,7 +175,7 @@ def test_set_env(model_class):
 
     kwargs = dict(policy_kwargs=dict(net_arch=[16]))
     if model_class in {TQC, QRDQN}:
-        kwargs.update(dict(learning_starts=100))
+        kwargs |= dict(learning_starts=100)
         kwargs["policy_kwargs"].update(dict(n_quantiles=20))
 
     # create model

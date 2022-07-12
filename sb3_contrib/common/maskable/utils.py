@@ -27,12 +27,11 @@ def is_masking_supported(env: GymEnv) -> bool:
     :return: True if the method is found, False otherwise
     """
 
-    if isinstance(env, VecEnv):
-        try:
-            # TODO: add VecEnv.has_attr()
-            env.get_attr(EXPECTED_METHOD_NAME)
-            return True
-        except AttributeError:
-            return False
-    else:
+    if not isinstance(env, VecEnv):
         return hasattr(env, EXPECTED_METHOD_NAME)
+    try:
+        # TODO: add VecEnv.has_attr()
+        env.get_attr(EXPECTED_METHOD_NAME)
+        return True
+    except AttributeError:
+        return False
