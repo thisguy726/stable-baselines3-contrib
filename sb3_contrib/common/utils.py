@@ -63,10 +63,7 @@ def quantile_huber_loss(
     abs_pairwise_delta = th.abs(pairwise_delta)
     huber_loss = th.where(abs_pairwise_delta > 1, abs_pairwise_delta - 0.5, pairwise_delta**2 * 0.5)
     loss = th.abs(cum_prob - (pairwise_delta.detach() < 0).float()) * huber_loss
-    if sum_over_quantiles:
-        loss = loss.sum(dim=-2).mean()
-    else:
-        loss = loss.mean()
+    loss = loss.sum(dim=-2).mean() if sum_over_quantiles else loss.mean()
     return loss
 
 

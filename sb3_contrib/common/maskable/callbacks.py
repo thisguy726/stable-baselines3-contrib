@@ -61,7 +61,7 @@ class MaskableEvalCallback(EvalCallback):
 
                 kwargs = {}
                 # Save success log if present
-                if len(self._is_success_buffer) > 0:
+                if self._is_success_buffer:
                     self.evaluations_successes.append(self._is_success_buffer)
                     kwargs = dict(successes=self.evaluations_successes)
 
@@ -84,7 +84,7 @@ class MaskableEvalCallback(EvalCallback):
             self.logger.record("eval/mean_reward", float(mean_reward))
             self.logger.record("eval/mean_ep_length", mean_ep_length)
 
-            if len(self._is_success_buffer) > 0:
+            if self._is_success_buffer:
                 success_rate = np.mean(self._is_success_buffer)
                 if self.verbose > 0:
                     print(f"Success rate: {100 * success_rate:.2f}%")

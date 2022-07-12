@@ -112,8 +112,7 @@ class MaskableCategoricalDistribution(MaskableDistribution):
             of the policy network (before the action layer)
         :return:
         """
-        action_logits = nn.Linear(latent_dim, self.action_dim)
-        return action_logits
+        return nn.Linear(latent_dim, self.action_dim)
 
     def proba_distribution(self, action_logits: th.Tensor) -> "MaskableCategoricalDistribution":
         # Restructure shape to align with logits
@@ -175,8 +174,7 @@ class MaskableMultiCategoricalDistribution(MaskableDistribution):
         :return:
         """
 
-        action_logits = nn.Linear(latent_dim, sum(self.action_dims))
-        return action_logits
+        return nn.Linear(latent_dim, sum(self.action_dims))
 
     def proba_distribution(self, action_logits: th.Tensor) -> "MaskableMultiCategoricalDistribution":
         # Restructure shape to align with logits
