@@ -87,7 +87,7 @@ class Actor(BasePolicy):
         action_dim = get_action_dim(self.action_space)
         latent_pi_net = create_mlp(features_dim, -1, net_arch, activation_fn)
         self.latent_pi = nn.Sequential(*latent_pi_net)
-        last_layer_dim = net_arch[-1] if len(net_arch) > 0 else features_dim
+        last_layer_dim = net_arch[-1] if net_arch else features_dim
 
         if sde_net_arch is not None:
             warnings.warn("sde_net_arch is deprecated and will be removed in SB3 v2.4.0.", DeprecationWarning)
@@ -241,8 +241,7 @@ class Critic(BaseModel):
         with th.set_grad_enabled(not self.share_features_extractor):
             features = self.extract_features(obs)
         qvalue_input = th.cat([features, action], dim=1)
-        quantiles = th.stack(tuple(qf(qvalue_input) for qf in self.q_networks), dim=1)
-        return quantiles
+        return th.stack(tuple(qf(qvalue_input) for qf in self.q_networks), dim=1)
 
 
 class TQCPolicy(BasePolicy):
@@ -310,11 +309,7 @@ class TQCPolicy(BasePolicy):
         )
 
         if net_arch is None:
-            if features_extractor_class == NatureCNN:
-                net_arch = []
-            else:
-                net_arch = [256, 256]
-
+            net_arch = [] if features_extractor_class == NatureCNN else [256, 256]
         actor_arch, critic_arch = get_actor_critic_arch(net_arch)
 
         self.net_arch = net_arch
@@ -345,7 +340,7 @@ class TQCPolicy(BasePolicy):
             "net_arch": critic_arch,
             "share_features_extractor": share_features_extractor,
         }
-        self.critic_kwargs.update(tqc_kwargs)
+        self.critic_kwargs |= tqc_kwargs
         self.actor, self.actor_target = None, None
         self.critic, self.critic_target = None, None
         self.share_features_extractor = share_features_extractor

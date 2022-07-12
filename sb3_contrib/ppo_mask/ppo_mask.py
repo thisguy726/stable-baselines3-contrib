@@ -309,7 +309,6 @@ class MaskablePPO(OnPolicyAlgorithm):
         assert self._last_obs is not None, "No previous observation was provided"
         # Switch to eval mode (this affects batch norm / dropout)
         self.policy.set_training_mode(False)
-        n_steps = 0
         action_masks = None
         rollout_buffer.reset()
 
@@ -318,7 +317,7 @@ class MaskablePPO(OnPolicyAlgorithm):
 
         callback.on_rollout_start()
 
-        while n_steps < n_rollout_steps:
+        for _ in range(n_rollout_steps):
             with th.no_grad():
                 # Convert to pytorch tensor or to TensorDict
                 obs_tensor = obs_as_tensor(self._last_obs, self.device)
@@ -340,8 +339,6 @@ class MaskablePPO(OnPolicyAlgorithm):
                 return False
 
             self._update_info_buffer(infos)
-            n_steps += 1
-
             if isinstance(self.action_space, spaces.Discrete):
                 # Reshape in case of discrete action
                 actions = actions.reshape(-1, 1)
@@ -472,12 +469,7 @@ class MaskablePPO(OnPolicyAlgorithm):
                 value_losses.append(value_loss.item())
 
                 # Entropy loss favor exploration
-                if entropy is None:
-                    # Approximate entropy when no analytical form
-                    entropy_loss = -th.mean(-log_prob)
-                else:
-                    entropy_loss = -th.mean(entropy)
-
+                entropy_loss = -th.mean(-log_prob) if entropy is None else -th.mean(entropy)
                 entropy_losses.append(entropy_loss.item())
 
                 loss = policy_loss + self.ent_coef * entropy_loss + self.vf_coef * value_loss

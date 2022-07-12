@@ -34,10 +34,7 @@ def _worker(
     env = worker_env_wrapper.var()
     train_policy = train_policy_wrapper.var
     vec_normalize = unwrap_vec_normalize(env)
-    if vec_normalize is not None:
-        obs_rms = vec_normalize.obs_rms
-    else:
-        obs_rms = None
+    obs_rms = vec_normalize.obs_rms if vec_normalize is not None else None
     while True:
         try:
             cmd, data = remote.recv()

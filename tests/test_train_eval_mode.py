@@ -200,11 +200,7 @@ def test_tqc_train_with_batch_norm():
 
 @pytest.mark.parametrize("model_class", [QRDQN, TQC])
 def test_offpolicy_collect_rollout_batch_norm(model_class):
-    if model_class in [QRDQN]:
-        env_id = "CartPole-v1"
-    else:
-        env_id = "Pendulum-v1"
-
+    env_id = "CartPole-v1" if model_class in [QRDQN] else "Pendulum-v1"
     clone_helper = CLONE_HELPERS[model_class]
 
     learning_starts = 10
@@ -232,12 +228,13 @@ def test_offpolicy_collect_rollout_batch_norm(model_class):
 @pytest.mark.parametrize("model_class", [QRDQN, TQC])
 @pytest.mark.parametrize("env_id", ["Pendulum-v1", "CartPole-v1"])
 def test_predict_with_dropout_batch_norm(model_class, env_id):
-    if env_id == "CartPole-v1":
-        if model_class in [TQC]:
-            return
-    elif model_class in [QRDQN]:
+    if (
+        env_id == "CartPole-v1"
+        and model_class in [TQC]
+        or env_id != "CartPole-v1"
+        and model_class in [QRDQN]
+    ):
         return
-
     model_kwargs = dict(seed=1)
     clone_helper = CLONE_HELPERS[model_class]
 

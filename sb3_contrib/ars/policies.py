@@ -54,14 +54,12 @@ class ARSPolicy(BasePolicy):
         self.action_net = nn.Sequential(*actor_net)
 
     def _get_constructor_parameters(self) -> Dict[str, Any]:
-        # data = super()._get_constructor_parameters() this adds normalize_images, which we don't support...
-        data = dict(
+        return dict(
             observation_space=self.observation_space,
             action_space=self.action_space,
             net_arch=self.net_arch,
             activation_fn=self.activation_fn,
         )
-        return data
 
     def forward(self, obs: th.Tensor) -> th.Tensor:
 
